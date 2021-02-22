@@ -1,37 +1,40 @@
 const bcryptjs = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const secret = require("../config/secret");
-const { isValid } = require("../users/user-service");
-
-const db = require("../users/users-model");
+const jwt = require('jsonwebtoken');
+const secrets = require("../config/secret");
 
 const router = require("express").Router();
 
-router.post("/register", (req, res) => {
+const db = require("../users/users-model");
+const { isValid } = require("../users/user-service");
+
+router.post("/register", async (req, res, next) => {
   const credentials = req.body;
 
-  if (isValid(credentials)) {
-    const rounds = process.env.BCRYPT_ROUNDS;
+  try {
+    if (isValid(credentials)) {
+      // const rounds = process.env.BCRYPT_ROUNDS ?
+      //   parseInt(process.env.BCRYPT_ROUNDS) : 8;
 
-    // hash the password
-    const hash = bcryptjs.hashSync(credentials.password, rounds);
+      const rounds = process.env.BCRYPT_ROUNDS;
 
-    credentials.password = hash;
+      const hash = bcryptjs.hashSync(credentials.password, rounds);
+      credentials.password = hash;
 
-    // save the user to the database
-    db.add(credentials)
-      .then((user) => {
-        res.status(201).json({ user });
-      })
-      .catch((error) => {
-        res.status(500).json({ message: "cannot add user to the database" });
-      });
-  } else {
-    res.status(400).json({
-      message:
-        "please provide username and password and the password shoud be alphanumeric",
-    });
+      const user = await db.add(credentials);
+      const token = generateToken(user);
+      res.status(201).json({ data: user, token });
+    } else {
+      next(res.status(400).json({
+        message: "username and password missing"
+      }));
+    }
+  } catch (err) {
+    console.log(err);
+    next(res.status(500).json({
+      message: "cannot add to database"
+    }));
   }
+
 });
 
 router.post("/login", async (req, res, next) => {
@@ -41,7 +44,7 @@ router.post("/login", async (req, res, next) => {
 
     if (!isValid(req.body)) {
       next(res.status(400).json({
-        message: "invalid username or password"
+        message: "missing username or password"
       }));
     } else {
       const [user] = await db.findBy({ username: username });
@@ -50,31 +53,34 @@ router.post("/login", async (req, res, next) => {
         res.status(200).json({ message: 'welcome to the api', token: token });
       } else {
         next(res.status(401).json({
-          message: "invalid credentails"
+          message: "invalid credentials"
         }));
       }
     }
-  } catch (error) {
+  } catch (err) {
     next(res.status(500).json({
-      message: "could not log in the user"
+      message: "cannot log in"
     }));
   }
 
 });
 
+
 function generateToken(user) {
+
   const payload = {
     subject: user.id,
     username: user.username,
   };
 
   const options = {
-    expiresIn: "1d",
+    expiresIn: "1d"
   };
 
-  const token = jwt.sign(payload, secret.jwtSecret, options);
+  const token = jwt.sign(payload, secrets.jwtSecret, options);
 
   return token;
+
 }
 
 module.exports = router;

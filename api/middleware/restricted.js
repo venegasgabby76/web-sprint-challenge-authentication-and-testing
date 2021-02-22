@@ -1,35 +1,22 @@
-const jwt = require("jsonwebtoken");
-const secret = process.env.JWT_SECRET;
+const jwt = require('jsonwebtoken');
+const secrets = require('../config/secret');
 
 module.exports = (req, res, next) => {
-  try {
-    const token = req.headers.authorization ?
-      req.headers.authorization.split(' ')[1] :
-      '';
 
-    if (token) {
-      jwt.verify(token, secret, (err, decodedToken) => {
-        if (err) {
-          next(res.status(401).json({
-            message: "invalid token"
-          }));
-        } else {
-          req.decodedToken = decodedToken;
-          next();
-        }
-      });
-    } else {
-      next(res.status(401).json({
-        message: "invalid token"
-      }));
-    }
-  } catch (err) {
-    next(res.status(500).json({
-      message: "error validating credentails."
-    }));
+  const token = req.headers?.authorization?.split(' ')[1];
+
+  if(token) {
+    jwt.verify(token, secrets.jwtSecret, (err, decodedToken) => {
+      if(err) {
+        res.status(401).json({ message: 'token invalid'})
+      } else {
+        req.token = decodedToken
+        next();
+      }
+    })
+  } else {
+    res.status(400).json({ message: 'token required' });
   }
-
-
 };
 
 /*
