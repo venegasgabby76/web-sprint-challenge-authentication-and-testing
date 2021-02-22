@@ -22,10 +22,10 @@ We will hash the user's password using `bcryptjs`, and use JSON Web Tokens and t
 
 ### Task 1: Project Set Up
 
-- [ ] Fork the project and clone it to your machine.
-- [ ] Set up your fork settings in Github to submit via Codegrade.
-- [ ] Create a new branch: `git checkout -b <firstName-lastName>`.
-- [ ] Implement the project on your newly created branch, committing changes regularly.
+- [ X ] Fork the project and clone it to your machine.
+- [ X ] Set up your fork settings in Github to submit via Codegrade.
+- [ X ] Create a new branch: `git checkout -b <firstName-lastName>`.
+- [ X ] Implement the project on your newly created branch, committing changes regularly.
 - [ ] Push commits regularly: `git push origin <firstName-lastName>`.
 - [ ] Run the tests inside `./api/server.test.js` locally by executing `npm test`.
 - [ ] Run the Codegrade tests locally by executing `npm run codegrade`.
@@ -74,6 +74,18 @@ Submit via Codegrade. Remember to add a query string to your Webhook's Payload U
 Be prepared to demonstrate your understanding of this week's concepts by answering questions on the following topics.
 
 1. Differences between using _sessions_ or _JSON Web Tokens_ for authentication.
+
+we can think of sessions as authorization and JWT as authentication. just because we are authorized doesnt mean that we are authenticated. with JWT we are able to tranfer data from one party to antother, where with sessions they are used to allow a server to store information about a client, then that information can then be used for a variety of purposes.
+
+
 2. What does `bcryptjs` do to help us store passwords in a secure manner?
+
+bycrypt allows us to hash the password, implements salting both manually and automatically as well as accumulative hashing rounds. this makes it difficult for rainbow chart hacking. 
+
 3. How are unit tests different from integration and end-to-end testing?
+
+unit testing allows us to isolate and test small units of code to check for their functionality, where integration and end-to-end tesint allows us ot test the entire application to make sure that the functioanllity is working correctly all the way through.
+
 4. How does _Test Driven Development_ change the way we write applications and tests?
+
+test driven development allows us to write the test before we write the actual code. we are then able to make the test fail first and then write the correct code to get the test to pass. 
