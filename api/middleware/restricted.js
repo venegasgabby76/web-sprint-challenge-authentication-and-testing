@@ -3,37 +3,33 @@ const secret = process.env.JWT_SECRET;
 
 module.exports = (req, res, next) => {
   try {
-    const token = req.headers.authorization
-      ? req.headers.authorization.split(" ")[1]
-      : "";
+    const token = req.headers.authorization ?
+      req.headers.authorization.split(' ')[1] :
+      '';
 
     if (token) {
       jwt.verify(token, secret, (err, decodedToken) => {
         if (err) {
-          next(
-            res.status(401).json({
-              message: "invalid credentials",
-            })
-          );
+          next(res.status(401).json({
+            message: "invalid token"
+          }));
         } else {
           req.decodedToken = decodedToken;
           next();
         }
       });
     } else {
-      next(
-        res.status(401).json({
-          message: " token required",
-        })
-      );
+      next(res.status(401).json({
+        message: "invalid token"
+      }));
     }
   } catch (err) {
-    next(
-      res.status(401).json({
-        message: "token invalid",
-      })
-    );
+    next(res.status(500).json({
+      message: "error validating credentails."
+    }));
   }
+
+
 };
 
 /*
