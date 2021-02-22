@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const errorHandler = require("./errorHandler");
 
 const restrict = require('./middleware/restricted.js');
 
@@ -15,5 +16,7 @@ server.use(express.json());
 
 server.use('/api/auth', authRouter);
 server.use('/api/jokes', restrict, jokesRouter); // only logged-in users should have access!
+
+server.use(errorHandler);
 
 module.exports = server;
